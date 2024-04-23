@@ -4,13 +4,26 @@ import Swal from 'sweetalert2'
 import { useState } from 'react';
 import { BsFillSendFill } from "react-icons/bs";
 import { FaUpload } from "react-icons/fa";
-import { MdDone } from "react-icons/md";
+import { useEffect } from 'react';
+import { ENDPOINT } from '../../App';
 
 function Comander() {
+
     const [inputValue, setInputValue] = useState('');
     const [terminalValue, setTerminalValue] = useState('');
+    const [message, setMessage] = useState('');
+    //Comprobamos con un mensaje que el servidor esta activo
+    useEffect(() => {
+        fetch(`${ENDPOINT}/`)
+            .then(response => response.text())
+            .then(data => setMessage(data));
+    }, []);
 
-    function handleSubmit() {
+
+/* -------------------------------------------------------------------------- */
+/*                       Mandamos a analizar el comando                       */
+/* -------------------------------------------------------------------------- */
+    async function handleSubmit() {
         if (!inputValue.trim()) {
             Swal.fire({
                 title: 'Error',
@@ -18,18 +31,63 @@ function Comander() {
                 icon: 'error'
 
             });
-        }else{
-            setTerminalValue(inputValue)
-            setInputValue('')
+        } else {
+            try {
+                const response = await fetch(`${ENDPOINT}/command`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        texto: inputValue,
+                    }),
+                });
+                const data = await response.text();
+                setTerminalValue(data);
+                setInputValue('')
+            } catch (error) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'No se logro analizar el comando',
+                    icon: 'error' 
+                });
+                console.log(error);
+            }
         }
     }
 
+/* -------------------------------------------------------------------------- */
+/*                       Mandamos a analizar un archivo                       */
+/* -------------------------------------------------------------------------- */
     const handleFiles = (event) => {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = function (event) {
-                setTerminalValue(event.target.result);
+                
+                // Una vez que el archivo es leído, envía su contenido al servidor
+                fetch(`${ENDPOINT}/upload`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        fileContent: event.target.result
+                    })
+                })
+                    .then(response => response.text())
+                    .then(data => {
+                        setTerminalValue(data); // Respuesta del servidor
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'No se logro cargar el archivo',
+                            icon: 'error'
+
+                        });
+                        console.error('Error:', error);
+                    });
             };
             reader.readAsText(file);
         }
@@ -38,7 +96,7 @@ function Comander() {
     return (
         <div className="container-fluid bg-main py-4">
             <div className="container bg-command text-light py-4">
-                <h1 className="display-1 text-center">Terminal</h1>
+                <h1 className="display-1 text-center">{message}</h1>
                 <div className="container">
                     <CodeMirror
                         width='100%'
@@ -66,7 +124,6 @@ function Comander() {
                             onChange={handleFiles}
                             className="d-none" // Hacer el input de archivo invisible
                         />
-                        <button type="button" className="btn anchoBtnSuccess"><MdDone /></button>
                     </div>
                     <br />
                     <hr />

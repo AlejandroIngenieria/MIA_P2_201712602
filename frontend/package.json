@@ -10,6 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@mantine/core": "^7.8.0",
+    "@mantine/hooks": "^7.8.0",
+    "@primer/octicons-react": "^19.9.0",
     "@sweetalert2/themes": "^5.0.16",
     "@uiw/codemirror-extensions-langs": "^4.21.25",
     "@uiw/codemirror-theme-console": "^4.21.25",
@@ -19,7 +22,8 @@
     "react-icons": "^5.1.0",
     "react-router-dom": "^6.22.3",
     "sass": "^1.75.0",
-    "sweetalert2": "^11.10.8"
+    "sweetalert2": "^11.10.8",
+    "swr": "^2.2.5"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
