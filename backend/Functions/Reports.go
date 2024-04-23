@@ -276,7 +276,7 @@ func REPORT_MBR(id *string, path *string) {
 	/*                          ESCRIBIMOS EL CODIGO DOT                          */
 	/* -------------------------------------------------------------------------- */
 
-	dotFilePath := "./Reports/Rep1/mbr_rep.dot" // Ruta donde deseas guardar el archivo DOT
+	dotFilePath := "./Reports/mbr_rep.dot" // Ruta donde deseas guardar el archivo DOT
 	dotFile, err := os.Create(dotFilePath)
 	if err != nil {
 		AddText("Error: "+ err.Error())
@@ -470,7 +470,7 @@ func REPORT_DISK(id *string, path *string) {
 	/*                          ESCRITURA DEL ARCHIVO DOT                         */
 	/* -------------------------------------------------------------------------- */
 
-	dotFilePath := "./Reports/Rep2/disk_rep.dot" // Ruta donde deseas guardar el archivo DOT
+	dotFilePath := "./Reports/disk_rep.dot" // Ruta donde deseas guardar el archivo DOT
 	dotFile, err := os.Create(dotFilePath)
 	if err != nil {
 		AddText("Error: "+ err.Error())
@@ -578,7 +578,7 @@ func REPORT_INODE(id *string, path *string) {
 	/*                          ESCRIBIMOS EL CODIGO DOT                          */
 	/* -------------------------------------------------------------------------- */
 
-	dotFilePath := "./Reports/Rep3/inodes_rep.dot" // Ruta donde deseas guardar el archivo DOT
+	dotFilePath := "./Reports/inodes_rep.dot" // Ruta donde deseas guardar el archivo DOT
 	dotFile, err := os.Create(dotFilePath)
 	if err != nil {
 		AddText("Error: "+ err.Error())
@@ -692,7 +692,7 @@ func REPORT_BLOCK(id *string, path *string) {
 	/*                          ESCRIBIMOS EL CODIGO DOT                          */
 	/* -------------------------------------------------------------------------- */
 
-	dotFilePath := "./Reports/Rep5/bloques_rep.dot" // Ruta donde deseas guardar el archivo DOT
+	dotFilePath := "./Reports/bloques_rep.dot" // Ruta donde deseas guardar el archivo DOT
 	dotFile, err := os.Create(dotFilePath)
 	if err != nil {
 		AddText("Error: "+ err.Error())
@@ -981,7 +981,7 @@ func REPORT_TREE(id *string, path *string) {
 	/*                          ESCRIBIMOS EL CODIGO DOT                          */
 	/* -------------------------------------------------------------------------- */
 
-	dotFilePath := "./Reports/Rep8/tree_rep.dot" // Ruta donde deseas guardar el archivo DOT
+	dotFilePath := "./Reports/tree_rep.dot" // Ruta donde deseas guardar el archivo DOT
 	dotFile, err := os.Create(dotFilePath)
 	if err != nil {
 		AddText("Error: "+ err.Error())
@@ -1124,7 +1124,7 @@ func REPORT_SB(id *string, path *string) {
 	)
 
 	// Escribir el contenido en el archivo DOT
-	dotFilePath := "./Reports/Rep9/sb_rep.dot" // Ruta donde deseas guardar el archivo DOT
+	dotFilePath := "./Reports/sb_rep.dot" // Ruta donde deseas guardar el archivo DOT
 	dotFile, err := os.Create(dotFilePath)
 	if err != nil {
 		AddText("Error: "+ err.Error())

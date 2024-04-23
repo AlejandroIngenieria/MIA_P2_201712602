@@ -114,21 +114,21 @@ unmount -id=B402 #-> id4
 
 #REPORTES---------------------------------------------------
 #DISCO 1
-rep -id=IDx -path=./Reports/Rep1/reporte1.png -name=mbr #ERR ID NO ENCONTRADO -> id1
-rep -id=A202 -path=./Reports/Rep2/reporte2.png -name=disk #-> id2
-rep -id=A202 -path=./Reports/Rep1/reporte3.png -name=mbr #-> id2
+rep -id=IDx -path=./Reports/reporte1.png -name=mbr #ERR ID NO ENCONTRADO -> id1
+rep -id=A202 -path=./Reports/reporte2.png -name=disk #-> id2
+rep -id=A202 -path=./Reports/reporte3.png -name=mbr #-> id2
 
 #DISCO 2
-rep -id=IDx -path=./Reports/Rep1/reporte4.png -name=mbr #ERR ID NO ENCONTRADO -> id4
-rep -id=B302 -path=./Reports/Rep2/reporte5.png -name=disk #-> id3
-rep -id=B303 -path=./Reports/Rep1/reporte6.png -name=mbr #-> id3
+rep -id=IDx -path=./Reports/reporte4.png -name=mbr #ERR ID NO ENCONTRADO -> id4
+rep -id=B302 -path=./Reports/reporte5.png -name=disk #-> id3
+rep -id=B303 -path=./Reports/reporte6.png -name=mbr #-> id3
 
 #DISCO 3
-rep -id=IDx  -path=./Reports/Rep1/reporte7.png -name=mbr #ERR ID NO ENCONTRADO
-rep -id=C502 -path=./Reports/Rep2/reporte8.png -name=disk #-> id5
-rep -id=C502 -path=./Reports/Rep1/reporte9.png -name=mbr #-> id5
+rep -id=IDx  -path=./Reports/reporte7.png -name=mbr #ERR ID NO ENCONTRADO
+rep -id=C502 -path=./Reports/reporte8.png -name=disk #-> id5
+rep -id=C502 -path=./Reports/reporte9.png -name=mbr #-> id5
 
 #DISCO 5
-rep -id=IDx  -path=./Reports/Rep1/reporte10.png -name=mbr #ERR ID NO ENCONTRADO
-rep -id=E602 -path=./Reports/Rep2/reporte11.png -name=disk #-> id6
-rep -id=E602 -path=./Reports/Rep1/reporte12.png -name=mbr #-> id6
+rep -id=IDx  -path=./Reports/reporte10.png -name=mbr #ERR ID NO ENCONTRADO
+rep -id=E602 -path=./Reports/reporte11.png -name=disk #-> id6
+rep -id=E602 -path=./Reports/reporte12.png -name=mbr #-> id6
