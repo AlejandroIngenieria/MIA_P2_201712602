@@ -8,21 +8,46 @@ import { useEffect } from 'react';
 import { ENDPOINT } from '../../App';
 
 function Comander() {
-
     const [inputValue, setInputValue] = useState('');
     const [terminalValue, setTerminalValue] = useState('');
     const [message, setMessage] = useState('');
-    //Comprobamos con un mensaje que el servidor esta activo
+    /* -------------------------------------------------------------------------- */
+    /*                              MENSAJE DE INICIO                             */
+    /* -------------------------------------------------------------------------- */
     useEffect(() => {
         fetch(`${ENDPOINT}/`)
             .then(response => response.text())
             .then(data => setMessage(data));
     }, []);
 
+    /* -------------------------------------------------------------------------- */
+    /*                       PERSISTENCIA DE LA INFORMACION                       */
+    /* -------------------------------------------------------------------------- */
+    useEffect(() => {
+        // Cargar el valor guardado cuando el componente se monta
+        const savedValue = sessionStorage.getItem('terminalValue');
+        if (savedValue) {
+            setTerminalValue(savedValue);
+        }
+    }, []);
 
-/* -------------------------------------------------------------------------- */
-/*                       Mandamos a analizar el comando                       */
-/* -------------------------------------------------------------------------- */
+    useEffect(() => {
+        // Guardar el valor en localStorage cuando terminalValue cambie
+        sessionStorage.setItem('terminalValue', terminalValue);
+    }, [terminalValue]);
+
+    /* -------------------------------------------------------------------------- */
+    /*                                 TECLA ENTER                                */
+    /* -------------------------------------------------------------------------- */
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            handleSubmit(event);  // Llamar a handleSubmit si la tecla presionada es ENTER
+        }
+    };
+
+    /* -------------------------------------------------------------------------- */
+    /*                       Mandamos a analizar el comando                       */
+    /* -------------------------------------------------------------------------- */
     async function handleSubmit() {
         if (!inputValue.trim()) {
             Swal.fire({
@@ -49,22 +74,22 @@ function Comander() {
                 Swal.fire({
                     title: 'Error',
                     text: 'No se logro analizar el comando',
-                    icon: 'error' 
+                    icon: 'error'
                 });
                 console.log(error);
             }
         }
     }
 
-/* -------------------------------------------------------------------------- */
-/*                       Mandamos a analizar un archivo                       */
-/* -------------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------------- */
+    /*                       Mandamos a analizar un archivo                       */
+    /* -------------------------------------------------------------------------- */
     const handleFiles = (event) => {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = function (event) {
-                
+
                 // Una vez que el archivo es leído, envía su contenido al servidor
                 fetch(`${ENDPOINT}/upload`, {
                     method: 'POST',
@@ -113,6 +138,7 @@ function Comander() {
                             placeholder="Ingresar comando"
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
+                            onKeyDown={handleKeyDown}
                         />
                         <button type="button" onClick={() => handleSubmit()} className="btn btn-primary anchoBtnComando"><BsFillSendFill /></button>
                         <label htmlFor="fileInput" className="btn btn-danger anchoBtnComando">

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { ENDPOINT } from '../../App';
-import { Link } from 'react-router-dom';
 import pdf from "../../assets/pdf-file.png"
 import png from "../../assets/png-file.png"
 import svg from "../../assets/svg-file.png"
@@ -37,6 +36,35 @@ function Report() {
             });
     }, []);
 
+
+    async function handleDownload(fileName) {
+
+        try {
+            const response = await fetch(`${ENDPOINT}/download`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ filename: fileName })
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            // Procesar la respuesta para descargar el archivo
+            const blob = await response.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.setAttribute('download', fileName);  // Forzar la descarga del archivo
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
     return (
         <div className="container-fluid bg-main py-4">
             <div className="container bg-report altoReport">
@@ -49,10 +77,10 @@ function Report() {
                                     const ext = getFileExtension(file).toLowerCase(); // Obtener la extensión del archivo
                                     const icon = fileIcons[ext] || png; // Obtener el ícono basado en la extensión o png por defecto
                                     return (
-                                        <Link key={index} className='nav-link report p-4' to={'/'}>
+                                        <button onClick={() => handleDownload(file)} key={index} className='nav-link report p-4' to={'/'}>
                                             <img src={icon} alt="reporte" className='img-fluid' />
-                                            <h6 className='text-light'>{file}</h6>
-                                        </Link>
+                                            <h6 className='text-light text-center'>{file}</h6>
+                                        </button>
                                     );
                                 })}
                             </ul>

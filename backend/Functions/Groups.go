@@ -170,7 +170,7 @@ func LOGIN(user *string, pass *string, id *string) {
 			return
 		}
 	} else {
-		Global.PrintUser(usuario)
+		//Global.PrintUser(usuario)
 		searchIndex = 0
 		return
 	}

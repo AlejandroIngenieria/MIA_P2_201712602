@@ -2,14 +2,16 @@ package main
 
 import (
 	"P2/Analyzer"
+	functions_test "P2/Functions"
 	"P2/Utilities"
 	"fmt"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 var arranque = true
@@ -138,6 +140,36 @@ func main() {
 
 		return c.JSON(filtrados) // Envía la lista filtrada de archivos como JSON
 	})
-	
+
+	/* -------------------------------------------------------------------------- */
+	/*                            ENVIO DE PARTICIONES                            */
+	/* -------------------------------------------------------------------------- */
+	app.Post("/partitions", func(c *fiber.Ctx) error {
+		body := c.FormValue("letter")
+		archivos, err := functions_test.GetPartitions(body)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+
+		return c.JSON(archivos)
+	})
+
+	/* -------------------------------------------------------------------------- */
+	/*                             DESCARGAR REPORTES                             */
+	/* -------------------------------------------------------------------------- */
+	app.Post("/download", func(c *fiber.Ctx) error {
+        type request struct {
+            Filename string `json:"filename"`
+        }
+
+        var body request
+        if err := c.BodyParser(&body); err != nil {
+            return c.Status(fiber.StatusBadRequest).SendString("Error parsing JSON")
+        }
+
+        filePath := "./Reports/" + body.Filename  // Asegúrate de validar y sanear la entrada para prevenir path traversal
+        return c.Download(filePath)  // Envía el archivo como una descarga
+    })
+
 	log.Fatal(app.Listen(":4000"))
 }

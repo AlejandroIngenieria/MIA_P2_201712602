@@ -48,7 +48,7 @@ func ProcessMKDIR(input string, path *string, r *bool, flagN *bool) {
 
 	AddText("--------------------------------------------------------------------------")
 	AddText("                   		MKDIR: PROCESANDO	 	                       ")
-	fmt.Print("\n" + *path + "\n\n")
+	AddText(fmt.Sprint("\n" + *path + "\n\n"))
 	AddText("--------------------------------------------------------------------------")
 
 	re := regexp.MustCompile(`-(\w+)`)
@@ -107,7 +107,6 @@ func MKDIR(path *string, r *bool) {
 		return
 	}
 
-	structs_test.PrintInode(Inode0)
 
 	/* -------------------------------------------------------------------------- */
 	/*                           OBTENEMOS LA RUTA PADRE                          */
@@ -188,7 +187,6 @@ func MKDIR(path *string, r *bool) {
 				AddText("Error reading inode:"+ err.Error())
 				return
 			}
-			structs_test.PrintInode(Inode0)
 
 		}
 		carpetaCreada = true
@@ -203,7 +201,7 @@ func MKDIR(path *string, r *bool) {
 	if *r && !carpetaCreada {
 		if string(Padre.B_name[:]) != "" {
 			AddText("creando a partir de carpetas existentes")
-			fmt.Printf("Encontrado -> B_inode: %d B_name: %s\n", Padre.B_inodo, Padre.B_name)
+			AddText(fmt.Sprintf("Encontrado -> B_inode: %d B_name: %s\n", Padre.B_inodo, Padre.B_name))
 			CreandoCamino(Padre.B_inodo, nuevaCarpeta, file, partes)
 		} else {
 			AddText("Creando todas las carpetas")
@@ -213,7 +211,7 @@ func MKDIR(path *string, r *bool) {
 	}
 	if carpetaCreada {
 		AddText("--------------------------------------------------------------------------")
-		fmt.Printf("                MKDIR: CARPETA %s CREADA CORRECTAMENTE\n", nuevaCarpeta)
+		AddText(fmt.Sprintf("                MKDIR: CARPETA %s CREADA CORRECTAMENTE", nuevaCarpeta))
 		AddText("--------------------------------------------------------------------------")
 	} else {
 		AddText("Error: No se logro crear la carpeta")
@@ -280,7 +278,7 @@ func ProcessMKFILE(input string, path *string, r *bool, size *int, cont *string,
 
 	AddText("--------------------------------------------------------------------------")
 	AddText("                   		MKFILE: PROCESANDO	 	                       ")
-	fmt.Print("\n" + *path + "\n\n")
+	AddText(fmt.Sprintf("\n" + *path + "\n"))
 	AddText("--------------------------------------------------------------------------")
 
 	re = regexp.MustCompile(`-(\w+)`)
@@ -343,7 +341,6 @@ func MKFILE(path *string, r *bool) {
 		return
 	}
 
-	structs_test.PrintInode(Inode0)
 
 	/* -------------------------------------------------------------------------- */
 	/*                           OBTENEMOS LA RUTA PADRE                          */
@@ -418,7 +415,6 @@ func MKFILE(path *string, r *bool) {
 				AddText("Error reading inode:"+ err.Error())
 				return
 			}
-			structs_test.PrintInode(Inode0)
 
 		}
 		carpetaCreada = true
@@ -433,7 +429,7 @@ func MKFILE(path *string, r *bool) {
 	if *r && !carpetaCreada {
 		if string(Padre.B_name[:]) != "" {
 			AddText("creando a partir de carpetas existentes")
-			fmt.Printf("Encontrado -> B_inode: %d B_name: %s\n", Padre.B_inodo, Padre.B_name)
+			AddText(fmt.Sprintf("Encontrado -> B_inode: %d B_name: %s\n", Padre.B_inodo, Padre.B_name))
 			CreandoCamino(Padre.B_inodo, nuevaCarpeta, file, partes)
 		} else {
 			AddText("Creando todas las carpetas")
@@ -443,7 +439,7 @@ func MKFILE(path *string, r *bool) {
 	}
 	if carpetaCreada {
 		AddText("--------------------------------------------------------------------------")
-		fmt.Printf("                MKDIR: CARPETA %s CREADA CORRECTAMENTE\n", nuevaCarpeta)
+		AddText(fmt.Sprintf("                MKDIR: CARPETA %s CREADA CORRECTAMENTE", nuevaCarpeta))
 		AddText("--------------------------------------------------------------------------")
 	} else {
 		AddText("Error: No se logro crear la carpeta")
@@ -554,8 +550,7 @@ func REMOVE(path *string) {
 		return
 	}
 
-	structs_test.PrintInode(Inode0)
-
+	
 	carpetas := strings.Split(*path, "/")
 	carpetas = carpetas[1:]
 	nuevaCarpeta := carpetas[len(carpetas)-1]
@@ -687,8 +682,7 @@ func RENAME(path *string, name *string) {
 		AddText("Error reading inode:"+ err.Error())
 		return
 	}
-
-	structs_test.PrintInode(Inode0)
+	
 
 	carpetas := strings.Split(*path, "/")
 	carpetas = carpetas[1:]
@@ -776,7 +770,6 @@ func COPY(path *string, destino *string) {
 		return
 	}
 
-	structs_test.PrintInode(Inode0)
 
 	/* -------------------------------------------------------------------------- */
 	/*                           OBTENEMOS LA RUTA PADRE                          */
@@ -854,7 +847,6 @@ func COPY(path *string, destino *string) {
 				AddText("Error reading inode:"+ err.Error())
 				return
 			}
-			structs_test.PrintInode(Inode0)
 
 		}
 		carpetaCreada = true
@@ -879,7 +871,7 @@ func COPY(path *string, destino *string) {
 	}
 	if carpetaCreada {
 		AddText("--------------------------------------------------------------------------")
-		fmt.Printf("                COPY:  %s COPIADO CORRECTAMENTE\n", nuevaCarpeta)
+		AddText(fmt.Sprintf("                COPY:  %s COPIADO CORRECTAMENTE\n", nuevaCarpeta))
 		AddText("--------------------------------------------------------------------------")
 	} else {
 		AddText("Error: No se logro copiar el elemento")
@@ -955,7 +947,6 @@ func MOVE(path *string, destino *string) {
 		return
 	}
 
-	structs_test.PrintInode(Inode0)
 
 	/* -------------------------------------------------------------------------- */
 	/*                           OBTENEMOS LA RUTA PADRE                          */
@@ -1034,7 +1025,6 @@ func MOVE(path *string, destino *string) {
 				AddText("Error reading inode:"+ err.Error())
 				return
 			}
-			structs_test.PrintInode(Inode0)
 
 		}
 		carpetaCreada = true
@@ -1049,7 +1039,7 @@ func MOVE(path *string, destino *string) {
 	if !carpetaCreada {
 		if string(Padre.B_name[:]) != "" {
 			AddText("creando a partir de carpetas existentes")
-			fmt.Printf("Encontrado -> B_inode: %d B_name: %s\n", Padre.B_inodo, Padre.B_name)
+			AddText(fmt.Sprintf("Encontrado -> B_inode: %d B_name: %s\n", Padre.B_inodo, Padre.B_name))
 			CreandoCamino(Padre.B_inodo, nuevaCarpeta, file, partes)
 		} else {
 			AddText("Creando todas las carpetas")
@@ -1059,7 +1049,7 @@ func MOVE(path *string, destino *string) {
 	}
 	if carpetaCreada {
 		AddText("--------------------------------------------------------------------------")
-		fmt.Printf("                MOVE:  %s  CORRECTAMENTE\n", nuevaCarpeta)
+		AddText(fmt.Sprintf("                MOVE:  %s  CORRECTAMENTE\n", nuevaCarpeta))
 		AddText("--------------------------------------------------------------------------")
 	} else {
 		AddText("Error: No se logro mover el elemento")

@@ -1007,6 +1007,7 @@ func REPORT_TREE(id *string, path *string) {
 		return
 	}
 
+
 	AddText("--------------------------------------------------------------------------")
 	AddText("               REPORTE-TREE: GENERADO CORRECTAMENTE                    ")
 	AddText(fmt.Sprintf("                          %s                          ", pngFilePath))

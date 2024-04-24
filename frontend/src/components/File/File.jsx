@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ENDPOINT } from '../../App';
 import { Link } from 'react-router-dom';
 import disco from "../../assets/disk.png"
+import Swal from 'sweetalert2';
 
 function File() {
     const [files, setFiles] = useState([]);
@@ -11,13 +12,21 @@ function File() {
         fetch(`${ENDPOINT}/disks`)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Problema de red',
+                        icon: 'error'
+                    })
                 }
                 return response.json();
             })
             .then(data => setFiles(data))
             .catch(error => {
-                console.error('There was a problem with the fetch operation:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: error,
+                    icon: 'error'
+                })
             });
     }, []);
 
@@ -32,7 +41,8 @@ function File() {
                             ? (
                                 <ul className='d-flex flex-wrap container-fluid'>
                                     {files.map((file, index) => (
-                                        <Link key={index} className='nav-link disco p-4' to={'/'}>
+                                        file = file.replace(/\.dsk$/, ''),
+                                        <Link key={index} className='nav-link disco p-4'  to={`/files/${file}`}>
                                             <img src={disco} alt="disco" className='img-fluid' />
                                             <h3 className='text-light'>{file}</h3>
                                         </Link>

@@ -1,11 +1,16 @@
-import Comander from "./components/Comander/Comander"
-import Footer from "./components/Footer/Footer"
 import Navbar from "./components/Navbar/Navbar"
-import { BrowserRouter, Routes, Route } from "react-router-dom"
-import Report from "./components/Report/Report"
+import Footer from "./components/Footer/Footer"
+import Comander from "./components/Comander/Comander"
 import File from "./components/File/File"
+import Partition from "./components/Partition/Partition"
+import Login from "./components/Login/Login"
+import Explorer from "./components/Explorer/Explorer"
+import Report from "./components/Report/Report"
+
+import { BrowserRouter, Routes, Route } from "react-router-dom"
 
 export const ENDPOINT = "http://localhost:4000";
+export let session = false
 
 
 function App() {
@@ -15,7 +20,10 @@ function App() {
       <Navbar />
       <Routes>
         <Route exact path="/" element={<Comander />} />
-        <Route exact path="/Files" element={<File />} />
+        <Route exact path="/files" element={<File />} />
+        <Route exact path="/files/:driveletter" element={<Partition />} />
+        <Route exact path="/files/:driveletter/:partition" element={<Login />} />
+        <Route exact path="/files/:driveletter/:partition/explorer" element={<Explorer />} />
         <Route exact path="/reports" element={<Report />} />
       </Routes>
       <Footer />

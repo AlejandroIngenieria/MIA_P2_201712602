@@ -37,8 +37,6 @@ func CrearBloque(file *os.File, blockNum int32) {
 }
 
 func CrearFolderBlock(file *os.File, blockNum int32, carpeta string) {
-	print("Creando el bloque ")
-	println(blockNum)
 	CrrSuperblock.S_free_blocks_count -= 1
 	var Folderblock structs_test.Folderblock
 	//var crrInode structs_test.Inode
@@ -53,18 +51,11 @@ func CrearFolderBlock(file *os.File, blockNum int32, carpeta string) {
 	} else {
 		CrearInodo(file, CrrSuperblock.S_inodes_count)
 	}
-	// BlockCounter++
-	// CrearBloque(file, CrrSuperblock.S_blocks_count)
-	// if err := utilities_test.WriteObject(file, &Folderblock, int64(CrrSuperblock.S_block_start+blockNum*int32(binary.Size(structs_test.Folderblock{})))); err != nil {
-	// 	fmt.Println("Error reading Fileblock:", err)
-	// 	return
-	// }
-	//var folder structs_test.Folderblock
+
 	if err := utilities_test.ReadObject(file, &folder, int64(CrrSuperblock.S_block_start+blockNum*int32(binary.Size(structs_test.Folderblock{})))); err != nil {
 		fmt.Println("Error reading Fileblock:", err)
 		return
 	}
-	structs_test.PrintFolderBlock(folder)
 }
 
 func CargarInodo(file *os.File, inodo int32) structs_test.Inode {
@@ -156,8 +147,6 @@ func CrearFileBlock(file *os.File, blockNum int32) {
 
 func BuscarRuta(ruta []string, bloque int32, busqueda int) bool {
 
-	print("BUSCANDO: " + ruta[busqueda] + " en el bloque ")
-	println(bloque)
 	/* -------------------------------------------------------------------------- */
 	/*                              BUSCAMOS EL DISCO                             */
 	/* -------------------------------------------------------------------------- */
@@ -189,7 +178,7 @@ func BuscarRuta(ruta []string, bloque int32, busqueda int) bool {
 		}
 	}
 	if index == -1 {
-		fmt.Println("Partition not found")
+		AddText("Partition not found")
 		return true
 	}
 	/* -------------------------------------------------------------------------- */
@@ -204,9 +193,7 @@ func BuscarRuta(ruta []string, bloque int32, busqueda int) bool {
 	encontrado := false
 	for _, content := range FolderBlock.B_content {
 		nombre := string(bytes.Trim(content.B_name[:], "\x00")) // Eliminar bytes nulos del final
-		println("encontrando: " + nombre)
-		//fmt.Printf("Encontrado -> B_inode: %d B_name: %s\n", content.B_inodo, nombre)
-
+		
 		if strings.TrimSpace(nombre) == strings.TrimSpace(ruta[busqueda]) {
 			Padre = content
 			encontrado = true
@@ -215,14 +202,8 @@ func BuscarRuta(ruta []string, bloque int32, busqueda int) bool {
 			//recorrerlos bloques del inodo
 			//recursividad para cada bloque hasta que se encuentre la otra parte de la ruta
 			if busqueda < len(ruta)-1 {
-				println("Aun no termina la ruta")
 				Inode := CargarInodo(file, content.B_inodo)
 				busqueda++
-				println("BUSCANDO " + ruta[busqueda])
-				fmt.Printf("Encontrado -> B_inode: %d B_name: %s\n", content.B_inodo, nombre)
-				print("En los bloques del inodo ")
-				println(content.B_inodo)
-				structs_test.PrintInode(Inode)
 				for _, i := range Inode.I_block {
 					if i == -1 {
 						break
@@ -245,9 +226,6 @@ func BuscarRuta(ruta []string, bloque int32, busqueda int) bool {
 }
 
 func BuscarEspacioEnRoot(carpetaNueva string, bloque int32) bool {
-	println("La nueva carpeta a añadir es " + carpetaNueva)
-	print("Buscando en el bloque ")
-	println(bloque)
 	/* -------------------------------------------------------------------------- */
 	/*                              BUSCAMOS EL DISCO                             */
 	/* -------------------------------------------------------------------------- */
@@ -279,7 +257,7 @@ func BuscarEspacioEnRoot(carpetaNueva string, bloque int32) bool {
 		}
 	}
 	if index == -1 {
-		fmt.Println("Partition not found")
+		AddText("Partition not found")
 		return true
 	}
 	/* -------------------------------------------------------------------------- */
@@ -296,9 +274,7 @@ func BuscarEspacioEnRoot(carpetaNueva string, bloque int32) bool {
 
 	for i, content := range FolderBlock.B_content {
 		nombre := string(bytes.Trim(content.B_name[:], "\x00")) // Eliminar bytes nulos del final
-		println("encontro: " + nombre)
 		if nombre == "" {
-			println("Espacio disponible")
 			//Escribir la carpeta
 			bytes := []byte(carpetaNueva)
 			copy(content.B_name[:], bytes)
@@ -312,7 +288,6 @@ func BuscarEspacioEnRoot(carpetaNueva string, bloque int32) bool {
 				CrearInodoFileblock(file, CrrSuperblock.S_inodes_count)
 				//CrearBloque(file, CrrSuperblock.S_blocks_count)
 				FolderBlock.B_content[i] = content
-				println("Actualizo")
 				if err := utilities_test.WriteObject(file, &FolderBlock, int64(CrrSuperblock.S_block_start+bloque*int32(binary.Size(structs_test.Folderblock{})))); err != nil {
 					fmt.Println("Error reading Fileblock:", err)
 					return false
@@ -322,7 +297,6 @@ func BuscarEspacioEnRoot(carpetaNueva string, bloque int32) bool {
 				CrearInodo(file, CrrSuperblock.S_inodes_count)
 				//CrearBloque(file, CrrSuperblock.S_blocks_count)
 				FolderBlock.B_content[i] = content
-				println("Actualizo")
 				if err := utilities_test.WriteObject(file, &FolderBlock, int64(CrrSuperblock.S_block_start+bloque*int32(binary.Size(structs_test.Folderblock{})))); err != nil {
 					fmt.Println("Error reading Fileblock:", err)
 					return false
@@ -336,7 +310,6 @@ func BuscarEspacioEnRoot(carpetaNueva string, bloque int32) bool {
 }
 
 func BuscarEspacio(carpetaNueva string, bloque int32) int32 {
-	println("La nueva carpeta a añadir es " + carpetaNueva)
 	/* -------------------------------------------------------------------------- */
 	/*                              BUSCAMOS EL DISCO                             */
 	/* -------------------------------------------------------------------------- */
@@ -368,7 +341,7 @@ func BuscarEspacio(carpetaNueva string, bloque int32) int32 {
 		}
 	}
 	if index == -1 {
-		fmt.Println("Partition not found")
+		AddText("Partition not found")
 		return -1
 	}
 	/* -------------------------------------------------------------------------- */
@@ -383,9 +356,7 @@ func BuscarEspacio(carpetaNueva string, bloque int32) int32 {
 
 	for i, content := range FolderBlock.B_content {
 		nombre := string(bytes.Trim(content.B_name[:], "\x00")) // Eliminar bytes nulos del final
-		println("encontrando: " + nombre)
 		if nombre == "" {
-			println("Espacio disponible")
 			//Escribir la carpeta
 			bytes := []byte(carpetaNueva)
 			copy(content.B_name[:], bytes)
@@ -428,13 +399,11 @@ func CreandoCamino(inodo int32, nuevaCarpeta string, file *os.File, ruta []strin
 		fmt.Println("Error reading inode:", err)
 		return
 	}
-	structs_test.PrintInode(Inode)
 	existe := int32(-1)
 	for _, i := range Inode.I_block {
 		if i == -1 {
 			break
 		}
-		println(i)
 		existe = BuscarEspacio(carpeta, i)
 		if existe > 0 {
 			break
@@ -451,8 +420,6 @@ func CreandoCamino(inodo int32, nuevaCarpeta string, file *os.File, ruta []strin
 /* -------------------------------------------------------------------------- */
 func EliminarRuta(ruta []string, bloque int32, busqueda int) bool {
 
-	print("BUSCANDO: " + ruta[busqueda] + " en el bloque ")
-	println(bloque)
 	/* -------------------------------------------------------------------------- */
 	/*                              BUSCAMOS EL DISCO                             */
 	/* -------------------------------------------------------------------------- */
@@ -484,7 +451,7 @@ func EliminarRuta(ruta []string, bloque int32, busqueda int) bool {
 		}
 	}
 	if index == -1 {
-		fmt.Println("Partition not found")
+		AddText("Partition not found")
 		return true
 	}
 	/* -------------------------------------------------------------------------- */
@@ -499,23 +466,15 @@ func EliminarRuta(ruta []string, bloque int32, busqueda int) bool {
 	encontrado := false
 	for i, content := range FolderBlock.B_content {
 		nombre := string(bytes.Trim(content.B_name[:], "\x00")) // Eliminar bytes nulos del final
-		println("encontrando: " + nombre)
-		//fmt.Printf("Encontrado -> B_inode: %d B_name: %s\n", content.B_inodo, nombre)
-
+		
 		if strings.TrimSpace(nombre) == strings.TrimSpace(ruta[busqueda]) {
 			encontrado = true
 			//Cargar el inodo
 			//recorrerlos bloques del inodo
 			//recursividad para cada bloque hasta que se encuentre la otra parte de la ruta
 			if busqueda < len(ruta)-1 {
-				println("Aun no termina la ruta")
 				Inode := CargarInodo(file, content.B_inodo)
 				busqueda++
-				println("BUSCANDO " + ruta[busqueda])
-				fmt.Printf("Encontrado -> B_inode: %d B_name: %s\n", content.B_inodo, nombre)
-				print("En los bloques del inodo ")
-				println(content.B_inodo)
-				structs_test.PrintInode(Inode)
 				for _, i := range Inode.I_block {
 					if i == -1 {
 						break
@@ -527,10 +486,9 @@ func EliminarRuta(ruta []string, bloque int32, busqueda int) bool {
 				}
 				return false
 			} else {
-				println("Se prodece a eliminar "+ruta[busqueda])
+				AddText("Se prodece a eliminar "+ruta[busqueda])
 				FolderBlock.B_content[i].B_name = [12]byte{}
 				FolderBlock.B_content[i].B_inodo = -1
-				structs_test.PrintFolderBlock(FolderBlock)
 				if err := utilities_test.WriteObject(file, &FolderBlock, int64(CrrSuperblock.S_block_start+bloque*int32(binary.Size(structs_test.Folderblock{})))); err != nil {
 					fmt.Println("Error reading Fileblock:", err)
 					return false
@@ -551,8 +509,6 @@ func EliminarRuta(ruta []string, bloque int32, busqueda int) bool {
 /* -------------------------------------------------------------------------- */
 func Rename(ruta []string, bloque int32, busqueda int, name string) bool {
 
-	print("BUSCANDO: " + ruta[busqueda] + " en el bloque ")
-	println(bloque)
 	/* -------------------------------------------------------------------------- */
 	/*                              BUSCAMOS EL DISCO                             */
 	/* -------------------------------------------------------------------------- */
@@ -584,7 +540,7 @@ func Rename(ruta []string, bloque int32, busqueda int, name string) bool {
 		}
 	}
 	if index == -1 {
-		fmt.Println("Partition not found")
+		AddText("Partition not found")
 		return true
 	}
 	/* -------------------------------------------------------------------------- */
@@ -599,23 +555,14 @@ func Rename(ruta []string, bloque int32, busqueda int, name string) bool {
 	encontrado := false
 	for i, content := range FolderBlock.B_content {
 		nombre := string(bytes.Trim(content.B_name[:], "\x00")) // Eliminar bytes nulos del final
-		println("encontrando: " + nombre)
-		//fmt.Printf("Encontrado -> B_inode: %d B_name: %s\n", content.B_inodo, nombre)
-
 		if strings.TrimSpace(nombre) == strings.TrimSpace(ruta[busqueda]) {
 			encontrado = true
 			//Cargar el inodo
 			//recorrerlos bloques del inodo
 			//recursividad para cada bloque hasta que se encuentre la otra parte de la ruta
 			if busqueda < len(ruta)-1 {
-				println("Aun no termina la ruta")
 				Inode := CargarInodo(file, content.B_inodo)
 				busqueda++
-				println("BUSCANDO " + ruta[busqueda])
-				fmt.Printf("Encontrado -> B_inode: %d B_name: %s\n", content.B_inodo, nombre)
-				print("En los bloques del inodo ")
-				println(content.B_inodo)
-				structs_test.PrintInode(Inode)
 				for _, i := range Inode.I_block {
 					if i == -1 {
 						break
@@ -628,7 +575,7 @@ func Rename(ruta []string, bloque int32, busqueda int, name string) bool {
 				return false
 			} else {
 				if nombre == name {
-					println("Error: el archivo ya existe")
+					AddText("Error: el archivo ya existe")
 					return false
 				}
 				copy(FolderBlock.B_content[i].B_name[:], name)
@@ -694,43 +641,33 @@ func CargarArbol(tempSuperblock structs_test.Superblock, file *os.File, num int3
 }
 
 func LeerBloque(bloque structs_test.Folderblock, j int32, file *os.File) {
-	// print("BLOQUE ")
-	// println(i)
 	bloques += fmt.Sprintf("bloque%d[label=\"{Bloque %d}\n",
 		int(j),
 		int(j))
-	//structs_test.PrintFolderBlock(bloque)
-
+	
 	for i := 0; i < 4; i++ {
 		nombre := string(bytes.Trim(bloque.B_content[i].B_name[:], "\x00"))
 		comas := strings.Split(nombre, ",")
 		punto := strings.Split(nombre, ".")
 		if nombre == "" {
 			bloques += fmt.Sprintf("|{Inode | %d | Name: | %s}\n", -1, " ")
-			//println("nombre vacio")
 			continue
 		}
 		if nombre == "." {
-			//println("nombre .")
 			bloques += fmt.Sprintf("|{Inode | %d | Name: | %s}\n", bloque.B_content[i].B_inodo, ".")
 			continue
 		}
 		if nombre == ".." {
-			//println("nombre ..")
 			bloques += fmt.Sprintf("|{Inode | %d | Name: | %s}\n", bloque.B_content[i].B_inodo, "..")
 			continue
 		}
 		if len(comas) != 1 {
-			//println("comas")
-			//println(len(comas))
 			continue
 		}
 		if len(punto) != 1 {
 			bloques += fmt.Sprintf("|{Inode | %d | Name: | %s}\n", bloque.B_content[i].B_inodo, nombre)
 			relaciones += fmt.Sprintf("bloque%d -> inodo%d;\n", j, bloque.B_content[i].B_inodo)
 
-			//println("comas")
-			//println(len(comas))
 			continue
 		}
 		bloques += fmt.Sprintf("|{Inode | %d | Name: | %s}\n", bloque.B_content[i].B_inodo, nombre)
@@ -743,15 +680,12 @@ func LeerBloque(bloque structs_test.Folderblock, j int32, file *os.File) {
 		punto := strings.Split(nombre, ".")
 
 		if nombre == "" {
-			//println("nombre vacio")
 			continue
 		}
 		if nombre == "." {
-			//println("nombre .")
 			continue
 		}
 		if nombre == ".." {
-			//println("nombre ..")
 			continue
 		}
 		if len(comas) != 1 {
@@ -768,10 +702,7 @@ func LeerBloque(bloque structs_test.Folderblock, j int32, file *os.File) {
 }
 
 func LeerInodo(i int32, file *os.File) {
-	// print("INODO ")
-	// println(i)
 	Inode := CargarInodo(file, i)
-	//structs_test.PrintInode(Inode)
 	inodos += fmt.Sprintf("inodo%d[label=\"{INODO %d}\n|{I_uid|%d}\n|{I_gid|%d}\n|{I_size|%d}\n|{I_atime|%s}\n|{I_ctime|%s}\n|{I_mtime|%s}\n|{I_block|%d}\n|{I_type|%s}\n|{I_perm|%s}\"];\n\n",
 		int(i),
 		int(i),
