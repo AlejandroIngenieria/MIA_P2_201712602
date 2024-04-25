@@ -41,7 +41,7 @@ function Partition() {
                 </h1>
                 <div className="container">
                     {
-                        files.length > 0
+                        files
                             ? (
                                 <ul className='d-flex flex-wrap container-fluid'>
                                     {files.filter(file => file)  // Filtra cualquier valor falso, incluyendo strings vacíos

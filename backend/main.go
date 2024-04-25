@@ -2,16 +2,15 @@ package main
 
 import (
 	"P2/Analyzer"
-	functions_test "P2/Functions"
+	"P2/Functions"
 	"P2/Utilities"
 	"fmt"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 var arranque = true
@@ -43,7 +42,7 @@ func EmptyFolder(carpeta string) {
 
 func FolderInfo(carpeta string) ([]string, error) {
 	var nombres []string
-	archivos, err := os.ReadDir(carpeta) // Cambiado de ioutil.ReadDir a os.ReadDir
+	archivos, err := os.ReadDir(carpeta)
 	if err != nil {
 		return nil, err
 	}
@@ -155,21 +154,63 @@ func main() {
 	})
 
 	/* -------------------------------------------------------------------------- */
-	/*                             DESCARGAR REPORTES                             */
+	/*                               ENVIAR REPORTES                              */
 	/* -------------------------------------------------------------------------- */
-	app.Post("/download", func(c *fiber.Ctx) error {
-        type request struct {
-            Filename string `json:"filename"`
-        }
+	app.Post("/reports/show", func(c *fiber.Ctx) error {
+		type request struct {
+			Filename string `json:"filename"`
+		}
 
-        var body request
-        if err := c.BodyParser(&body); err != nil {
-            return c.Status(fiber.StatusBadRequest).SendString("Error parsing JSON")
-        }
+		var body request
+		if err := c.BodyParser(&body); err != nil {
+			return c.Status(fiber.StatusBadRequest).SendString("Error parsing JSON")
+		}
 
-        filePath := "./Reports/" + body.Filename  // Asegúrate de validar y sanear la entrada para prevenir path traversal
-        return c.Download(filePath)  // Envía el archivo como una descarga
-    })
+		filePath := "./Reports/" + body.Filename // Asegúrate de validar y sanear la entrada para prevenir path traversal
+		return c.Download(filePath)              // Envía el archivo como una descarga
+	})
+
+	/* -------------------------------------------------------------------------- */
+	/*                                    LOGIN                                   */
+	/* -------------------------------------------------------------------------- */
+
+	app.Post("/login", func(c *fiber.Ctx) error {
+		type LoginRequest struct {
+			Username  string `json:"username"`
+			Password  string `json:"password"`
+			Disk      string `json:"disk"`
+			Partition string `json:"partition"`
+		}
+
+		var request LoginRequest
+		if err := c.BodyParser(&request); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"success": false})
+		}
+
+		isAuthorized := functions_test.Session(request.Disk, request.Partition, request.Username, request.Password)
+
+		// Enviar la respuesta
+		return c.JSON(fiber.Map{"success": isAuthorized})
+	})
+
+	/* -------------------------------------------------------------------------- */
+	/*                          CARGAR CONTENIDO DE RUTA                          */
+	/* -------------------------------------------------------------------------- */
+	app.Post("/docs", func(c *fiber.Ctx) error {
+		type DocsRequest struct {
+			Disk      string `json:"disk"`
+			Partition string `json:"partition"`
+			Ruta      string `json:"ruta"`
+		}
+
+		var request DocsRequest
+		archivos, err := functions_test.FolderContent(request.Disk, request.Partition, request.Ruta)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		}
+		
+		return c.JSON(archivos)
+	})
 
 	log.Fatal(app.Listen(":4000"))
 }

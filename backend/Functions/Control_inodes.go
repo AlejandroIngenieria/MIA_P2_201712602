@@ -362,6 +362,10 @@ func BuscarEspacio(carpetaNueva string, bloque int32) int32 {
 			copy(content.B_name[:], bytes)
 			// InodeCounter++
 			// BlockCounter++
+			if len(nombre) > 0 {
+				return -1
+			}
+
 			CrrSuperblock.S_inodes_count++
 			//CrrSuperblock.S_blocks_count++
 			content.B_inodo = CrrSuperblock.S_inodes_count
@@ -400,12 +404,25 @@ func CreandoCamino(inodo int32, nuevaCarpeta string, file *os.File, ruta []strin
 		return
 	}
 	existe := int32(-1)
-	for _, i := range Inode.I_block {
+	for j, i := range Inode.I_block {
 		if i == -1 {
 			break
 		}
 		existe = BuscarEspacio(carpeta, i)
-		if existe > 0 {
+		if existe == -1 {
+			if Inode.I_block[j+1] > 0 {
+				continue
+			} else {
+				CrrSuperblock.S_blocks_count++
+				CrearBloque(file, CrrSuperblock.S_blocks_count)
+				Inode.I_block[j+1] = CrrSuperblock.S_blocks_count
+				// Actualizamos el inodo
+				if err := utilities_test.WriteObject(file, &Inode, int64(CrrSuperblock.S_inode_start+inodo*int32(binary.Size(structs_test.Inode{})))); err != nil {
+					fmt.Println("Error reading inode:", err)
+					return
+				}
+				existe = BuscarEspacio(carpeta, CrrSuperblock.S_blocks_count)
+			}
 			break
 		}
 	}

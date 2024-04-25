@@ -117,25 +117,17 @@ func LOGIN(user *string, pass *string, id *string) {
 		return
 	}
 
-	// AddText("Bitmap de bloques del inodo1")
-	// AddText(crrInode.I_block)
-
 	/* -------------------------------------------------------------------------- */
 	/*                             LEEMOS EL FILEBLOCK                            */
 	/* -------------------------------------------------------------------------- */
 	var Fileblock structs_test.Fileblock
 	blockNum := crrInode.I_block[searchIndex]
-	// if err := utilities_test.ReadObject(file, &Fileblock, int64(tempSuperblock.S_block_start+crrInode.I_block[0]*int32(binary.Size(structs_test.Fileblock{}))+crrInode.I_block[0]*int32(binary.Size(structs_test.Fileblock{}))*int32(searchIndex))); err != nil {
-	// 	AddText("Error reading Fileblock:", err)
-	// 	return
-	// }
+	
 	if err := utilities_test.ReadObject(file, &Fileblock, int64(CrrSuperblock.S_block_start+blockNum*int32(binary.Size(structs_test.Fileblock{})))); err != nil {
 		AddText("Error: "+ err.Error())
 		return
 	}
-	//AddText("Fileblock " + fmt.Sprint(searchIndex))
 	data := string(Fileblock.B_content[:])
-	// Dividir la cadena en líneas
 	lines := strings.Split(data, "\n")
 
 	userFound := false

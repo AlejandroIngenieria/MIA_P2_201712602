@@ -4,9 +4,14 @@ import { TbReportSearch } from "react-icons/tb";
 import { BiSolidLogOut } from "react-icons/bi";
 import { Link } from "react-router-dom";
 import logo from "../../assets/consola.png"
-import { session } from "../../App";
+import { useSession } from "../../session/useSession";
+
+
 
 function Navbar() {
+
+    const { isAuthenticated, logout } = useSession()
+
     return (
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark py-4">
             <div className="container">
@@ -23,15 +28,15 @@ function Navbar() {
                             <Link className="nav-link" to={'/reports'}>Reportes <TbReportSearch /></Link>
                         </li>
                         {
-                            session ? (
+                            isAuthenticated ? (
                                 <li className="nav-item">
-                                    <Link className="nav-link" to={'/login'}>Logout<BiSolidLogOut /></Link>
+                                    <button className="nav-link" onClick={logout}>Logout<BiSolidLogOut /></button>
                                 </li>
                             ) : (
-                                    null
+                                null
                             )
                         }
-                        
+
                     </ul>
                 </div>
             </div>

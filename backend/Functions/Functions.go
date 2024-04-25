@@ -900,8 +900,6 @@ func MKFS(id *string, type_ *string, fs *string) {
 }
 
 func create_ext2(n int32, partition structs_test.Partition, newSuperblock structs_test.Superblock, date string, file *os.File) {
-	AddText("N:"+string(n))
-	AddText("Date:"+ date)
 
 	newSuperblock.S_filesystem_type = 2
 	newSuperblock.S_bm_inode_start = partition.Part_start + int32(binary.Size(structs_test.Superblock{}))
@@ -1064,8 +1062,6 @@ func create_ext2(n int32, partition structs_test.Partition, newSuperblock struct
 }
 
 func create_ext3(n int32, partition structs_test.Partition, newSuperblock structs_test.Superblock, date string, file *os.File) {
-	AddText("N:"+ string(n))
-	AddText("Date:"+ date)
 
 	newSuperblock.S_filesystem_type = 3
 	newSuperblock.S_bm_inode_start = partition.Part_start + int32(binary.Size(structs_test.Superblock{}))

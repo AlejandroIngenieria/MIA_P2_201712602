@@ -7,27 +7,31 @@ import Login from "./components/Login/Login"
 import Explorer from "./components/Explorer/Explorer"
 import Report from "./components/Report/Report"
 
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { Routes, Route, HashRouter } from "react-router-dom"
+import { SessionProvider } from "./session/Session"
 
 export const ENDPOINT = "http://localhost:4000";
-export let session = false
+
+sessionStorage.setItem('session', false);
 
 
 function App() {
 
   return (
-    <BrowserRouter>
-      <Navbar />
-      <Routes>
-        <Route exact path="/" element={<Comander />} />
-        <Route exact path="/files" element={<File />} />
-        <Route exact path="/files/:driveletter" element={<Partition />} />
-        <Route exact path="/files/:driveletter/:partition" element={<Login />} />
-        <Route exact path="/files/:driveletter/:partition/explorer" element={<Explorer />} />
-        <Route exact path="/reports" element={<Report />} />
-      </Routes>
-      <Footer />
-    </BrowserRouter>
+    <HashRouter>
+      <SessionProvider>
+        <Navbar />
+        <Routes>
+          <Route exact path="/" element={<Comander />} />
+          <Route exact path="/files" element={<File />} />
+          <Route exact path="/files/:driveletter" element={<Partition />} />
+          <Route exact path="/files/:driveletter/:partition" element={<Login />} />
+          <Route exact path="/files/:driveletter/:partition/explorer" element={<Explorer />} />
+          <Route exact path="/reports" element={<Report />} />
+        </Routes>
+        <Footer />
+      </SessionProvider>
+    </HashRouter>
   )
 }
 

@@ -12,8 +12,8 @@
   			mbr[label="
 				{MBR: C.dsk|
 					{mbr_tamaño|14680064}
-					|{mbr_fecha_creacion|2024-04-23}
-					|{mbr_disk_signature|14319386}
+					|{mbr_fecha_creacion|2024-04-25}
+					|{mbr_disk_signature|1607349336}
 								
 		|Particion 1
 		|{part_status|1}

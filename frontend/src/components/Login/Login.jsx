@@ -1,23 +1,62 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { IoArrowBack, IoLogInSharp } from "react-icons/io5";
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import loginPhoto from "../../assets/login.png";
+import { ENDPOINT } from '../../App';
+import { useSession } from '../../session/useSession';
+import Swal from 'sweetalert2';
 
 function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [loginSuccess, setLoginSuccess] = useState(null);
     const [hover, setHover] = useState(false);
-
     const { driveletter } = useParams()
-    console.log("Disco: "+driveletter)
-
     const { partition } = useParams()
-    console.log("Particion: "+partition)
+    const navigate = useNavigate()
+    const { login } = useSession()
 
-    const handleSubmit = (event) => {
+
+    useEffect(() => {
+        if (loginSuccess != null) {
+            loginSuccess === true ? (
+                login(),
+                sessionStorage.setItem('session', true),
+                navigate(`/files/${driveletter}/${partition}/explorer`)
+            ) :
+                (
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Revisar usuario y contraseña',
+                        icon: 'warning',
+                        timer: 2000
+                    })
+                )
+        }
+
+    }, [loginSuccess, partition, driveletter, navigate, login]);
+
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        // Aquí podrías agregar lógica para manejar el login
-        console.log('Login attempt with:', username, password);
+        try {
+            const response = await fetch(`${ENDPOINT}/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password,
+                    disk: driveletter,
+                    partition: partition
+
+                })
+            });
+            const data = await response.json();
+            setLoginSuccess(data.success);
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
 
     return (
@@ -25,7 +64,7 @@ function Login() {
             <div className="row justify-content-center align-items-center">
                 <div className="col-md-6">
                     <div className="card py-5 bg-login">
-                        <Link className='fs-1 mx-4' to={'/files'}>
+                        <Link className='fs-1 mx-4' to={`/files/${driveletter}`}>
                             <IoArrowBack />
                         </Link>
                         <img src={loginPhoto} className="card-img-top w-25 mx-auto d-block" alt="Login" />

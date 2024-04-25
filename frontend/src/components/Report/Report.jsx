@@ -37,10 +37,9 @@ function Report() {
     }, []);
 
 
-    async function handleDownload(fileName) {
-
+    async function openFile(fileName) {
         try {
-            const response = await fetch(`${ENDPOINT}/download`, {
+            const response = await fetch(`${ENDPOINT}/reports/show`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -51,15 +50,9 @@ function Report() {
                 throw new Error('Network response was not ok');
             }
 
-            // Procesar la respuesta para descargar el archivo
             const blob = await response.blob();
-            const downloadUrl = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.setAttribute('download', fileName);  // Forzar la descarga del archivo
-            document.body.appendChild(link);
-            link.click();
-            link.parentNode.removeChild(link);
+            const fileUrl = window.URL.createObjectURL(blob);
+            window.open(fileUrl, '_blank'); // Abrir el archivo en una nueva pestaña
         } catch (error) {
             console.error('Error:', error);
         }
@@ -77,7 +70,7 @@ function Report() {
                                     const ext = getFileExtension(file).toLowerCase(); // Obtener la extensión del archivo
                                     const icon = fileIcons[ext] || png; // Obtener el ícono basado en la extensión o png por defecto
                                     return (
-                                        <button onClick={() => handleDownload(file)} key={index} className='nav-link report p-4' to={'/'}>
+                                        <button onClick={() => openFile(file)} key={index} className='nav-link report p-4' to={'/'}>
                                             <img src={icon} alt="reporte" className='img-fluid' />
                                             <h6 className='text-light text-center'>{file}</h6>
                                         </button>
