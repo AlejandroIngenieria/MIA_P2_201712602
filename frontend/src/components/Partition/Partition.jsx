@@ -20,8 +20,8 @@ function Partition() {
                         letter: driveletter,
                     }),
                 });
-                const data = await response.text();
-                setFiles(JSON.parse(data));
+                const data = await response.json();
+                setFiles(data);
             } catch (error) {
                 console.log('Error fetching data:', error);
             }

@@ -41,6 +41,7 @@ function File() {
                             ? (
                                 <ul className='d-flex flex-wrap container-fluid'>
                                     {files.map((file, index) => (
+                                        // Quitamos el .dsk
                                         file = file.replace(/\.dsk$/, ''),
                                         <Link key={index} className='nav-link disco p-4'  to={`/files/${file}`}>
                                             <img src={disco} alt="disco" className='img-fluid' />

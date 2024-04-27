@@ -12,7 +12,7 @@ const fileIcons = {
     svg: svg,
     txt: txt
 };
-
+// Funcion para obtener la extension
 function getFileExtension(filename) {
     return filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2);
 }
@@ -36,9 +36,10 @@ function Report() {
             });
     }, []);
 
-
+    // Funcion para abrir el archivo en el navegador
     async function openFile(fileName) {
         try {
+            // Llamada para recibir el reporte
             const response = await fetch(`${ENDPOINT}/reports/show`, {
                 method: 'POST',
                 headers: {

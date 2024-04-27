@@ -11,10 +11,11 @@ function Login() {
     const [password, setPassword] = useState('');
     const [loginSuccess, setLoginSuccess] = useState(null);
     const [hover, setHover] = useState(false);
-    const { driveletter } = useParams()
-    const { partition } = useParams()
     const navigate = useNavigate()
     const { login } = useSession()
+    // Variables tomadas de la ruta
+    const { driveletter } = useParams()
+    const { partition } = useParams()
 
 
     useEffect(() => {

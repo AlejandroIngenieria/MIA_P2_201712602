@@ -1,19 +1,23 @@
 import CodeMirror from '@uiw/react-codemirror'
 import { consoleDark } from '@uiw/codemirror-theme-console';
 import Swal from 'sweetalert2'
-import { useState } from 'react';
 import { BsFillSendFill } from "react-icons/bs";
 import { FaUpload } from "react-icons/fa";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ENDPOINT } from '../../App';
 
 function Comander() {
+    // const [nombre del elemento, nombre de la funcion que actualiza el elemento] = 
     const [inputValue, setInputValue] = useState('');
     const [terminalValue, setTerminalValue] = useState('');
     const [message, setMessage] = useState('');
     /* -------------------------------------------------------------------------- */
     /*                              MENSAJE DE INICIO                             */
     /* -------------------------------------------------------------------------- */
+
+    /*
+        useEffect: es una funcion que actualiza en base a una variable
+    */
     useEffect(() => {
         fetch(`${ENDPOINT}/`)
             .then(response => response.text())
@@ -32,7 +36,10 @@ function Comander() {
     }, []);
 
     useEffect(() => {
-        // Guardar el valor en localStorage cuando terminalValue cambie
+        //LocalStorage: guarda los elementos usando los datos locales (de tu pc)
+        //SessionStorage: guarda los elementos hasta que se cierre la pestaña o hasta que se cierre el navegador
+        // Guardar el valor en sessionStorage cuando terminalValue cambie
+        //sessionStorage.setItem('nombre del item', valor del item)
         sessionStorage.setItem('terminalValue', terminalValue);
     }, [terminalValue]);
 
@@ -46,7 +53,7 @@ function Comander() {
     };
 
     /* -------------------------------------------------------------------------- */
-    /*                       Mandamos a analizar el comando                       */
+    /*                       Mandamos a analizar un comando                       */
     /* -------------------------------------------------------------------------- */
     async function handleSubmit() {
         if (!inputValue.trim()) {
@@ -54,7 +61,6 @@ function Comander() {
                 title: 'Error',
                 text: 'Cadena vacia',
                 icon: 'error'
-
             });
         } else {
             try {
@@ -141,6 +147,7 @@ function Comander() {
                             onKeyDown={handleKeyDown}
                         />
                         <button type="button" onClick={() => handleSubmit()} className="btn btn-primary anchoBtnComando"><BsFillSendFill /></button>
+                        {/* Codigo para hacer que la busqueda de archivos en un boton */}
                         <label htmlFor="fileInput" className="btn btn-danger anchoBtnComando">
                             <FaUpload />
                         </label>

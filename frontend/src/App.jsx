@@ -24,6 +24,7 @@ function App() {
         <Routes>
           <Route exact path="/" element={<Comander />} />
           <Route exact path="/files" element={<File />} />
+          {/* Para usar queryParams colocamos (:nombreElemento) */}
           <Route exact path="/files/:driveletter" element={<Partition />} />
           <Route exact path="/files/:driveletter/:partition" element={<Login />} />
           <Route exact path="/files/:driveletter/:partition/explorer" element={<Explorer />} />

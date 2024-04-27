@@ -3,7 +3,9 @@ package functions_test
 import (
 	"P2/Structs"
 	"P2/Utilities"
+	"bytes"
 	"encoding/binary"
+	"fmt"
 	"os"
 	"strings"
 )
@@ -63,7 +65,6 @@ func Session(driveletter string, name string, user string, password string) bool
 	/* -------------------------------------------------------------------------- */
 	/*                               CARGAMOS EL MBR                              */
 	/* -------------------------------------------------------------------------- */
-
 	var TempMBR structs_test.MBR
 	// Read object from bin file
 	if err := utilities_test.ReadObject(file, &TempMBR, 0); err != nil {
@@ -146,15 +147,16 @@ func Session(driveletter string, name string, user string, password string) bool
 // ?--------------------------------------------------------------------------
 // ?             FUNCION PARA RETORNAR EL CONTENIDO DE UNA CARPETA
 // ?--------------------------------------------------------------------------
-func FolderContent(driveletter string, partition string, ruta string) ([]string, error) {
-	var content []string
+func FolderContent(driveletter string, partition string, ruta string) []string {
+	var contenido []string
 	/* -------------------------------------------------------------------------- */
 	/*                              CARGAMOS EL DISCO                             */
 	/* -------------------------------------------------------------------------- */
 	rutaDisco := "./Disks/" + driveletter + ".dsk"
 	file, err := os.Open(rutaDisco)
 	if err != nil {
-		return nil, err
+		println("Error al leer el disco")
+		return nil
 	}
 	defer file.Close()
 	/* -------------------------------------------------------------------------- */
@@ -163,7 +165,8 @@ func FolderContent(driveletter string, partition string, ruta string) ([]string,
 	var TempMBR structs_test.MBR
 	// Read object from bin file
 	if err := utilities_test.ReadObject(file, &TempMBR, 0); err != nil {
-		return nil, err
+		println("Error al cargar el mbr")
+		return nil
 	}
 
 	/* -------------------------------------------------------------------------- */
@@ -178,34 +181,128 @@ func FolderContent(driveletter string, partition string, ruta string) ([]string,
 		}
 	}
 	if index == -1 {
-		return nil, err
+		println("No encontro la particion")
+		return nil
 	}
 	/* -------------------------------------------------------------------------- */
 	/*                           CARGAMOS EL SUPERBLOQUE                          */
 	/* -------------------------------------------------------------------------- */
 	var tempSuperblock structs_test.Superblock
 	if err := utilities_test.ReadObject(file, &tempSuperblock, int64(TempMBR.Mbr_particion[index].Part_start)); err != nil {
-		AddText("Error: " + err.Error())
-		return nil, err
+		println("error al cargar el superbloque")
+		return nil
 	}
+
 	/* -------------------------------------------------------------------------- */
 	/*                             CARGAMOS EL INODO 0                            */
 	/* -------------------------------------------------------------------------- */
 	var Inode0 structs_test.Inode
 	if err := utilities_test.ReadObject(file, &Inode0, int64(tempSuperblock.S_inode_start+0*int32(binary.Size(structs_test.Inode{})))); err != nil {
-		AddText("Error reading inode:" + err.Error())
-		return nil, err
+		println("error al cargar el inodo 0")
+		return nil
 	}
-
+	//structs_test.PrintInode(Inode0)
 	/* -------------------------------------------------------------------------- */
 	/*                             RECORREMOS LA RUTA                             */
 	/* -------------------------------------------------------------------------- */
 	carpetas := strings.Split(ruta, "/")
 	partes := carpetas[1:]
-	objetivo := carpetas[len(carpetas)-1]
-	println(partes)
-	println(objetivo)
+	if len(carpetas[1]) == 0 {
+		for cont, i := range Inode0.I_block {
+			if i == -1 {
+				break
+			}
 
+			bloque := CargarBloque(file, Inode0.I_block[cont])
+			for _, j := range bloque.B_content {
+				partNameClean := strings.Trim(string(j.B_name[:]), "\x00")
+				if partNameClean == "." {
+					continue
+				}
+				if partNameClean == ".." {
+					continue
+				}
+				if len(partNameClean) == 0 {
+					continue
+				}
+				contenido = append(contenido, partNameClean)
+			}
+		}
+		return contenido
+	} else {
+		for _, i := range Inode0.I_block {
+			if i == -1 {
+				break
+			}
 
-	return content, nil
+			contenido = BuscarContenido(file, partes, i, 0, tempSuperblock)
+			if contenido != nil {
+				return contenido
+			}
+		}
+	}
+	return nil
+}
+
+func BuscarContenido(file *os.File, ruta []string, bloque int32, busqueda int, sp structs_test.Superblock) []string {
+	/* -------------------------------------------------------------------------- */
+	/*                             CARGAMOS EL BLOQUE                             */
+	/* -------------------------------------------------------------------------- */
+	var FolderBlock structs_test.Folderblock
+	//var crrInode structs_test.Inode
+	if err := utilities_test.ReadObject(file, &FolderBlock, int64(sp.S_block_start+bloque*int32(binary.Size(structs_test.Folderblock{})))); err != nil {
+		fmt.Println("Error reading Fileblock:", err)
+		return nil
+	}
+	encontrado := false
+	for _, content := range FolderBlock.B_content {
+		nombre := string(bytes.Trim(content.B_name[:], "\x00")) // Eliminar bytes nulos del final
+		if strings.TrimSpace(nombre) == strings.TrimSpace(ruta[busqueda]) {
+			encontrado = true
+			//Cargar el inodo
+			//recorrerlos bloques del inodo
+			//recursividad para cada bloque hasta que se encuentre la otra parte de la ruta
+			Inode := CargarInodo(file, content.B_inodo)
+			if busqueda < len(ruta)-1 {
+				busqueda++
+				for _, i := range Inode.I_block {
+					if i == -1 {
+						break
+					}
+					resultado := BuscarContenido(file, ruta, i, busqueda, sp)
+					if resultado != nil{
+						return resultado
+					}
+
+				}
+			} else {
+				var contenido []string
+				for cont, i := range Inode.I_block {
+					if i == -1 {
+						return contenido
+					}
+
+					bloque := CargarBloque(file, Inode.I_block[cont])
+					for _, j := range bloque.B_content {
+						partNameClean := strings.Trim(string(j.B_name[:]), "\x00")
+						if partNameClean == "." {
+							continue
+						}
+						if partNameClean == ".." {
+							continue
+						}
+						if len(partNameClean) == 0 {
+							break
+						}
+						contenido = append(contenido, partNameClean)
+					}
+				}
+			}
+		}
+		if encontrado {
+			break
+		}
+	}
+
+	return nil
 }

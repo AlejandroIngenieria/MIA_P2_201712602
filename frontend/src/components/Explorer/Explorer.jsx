@@ -3,7 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { useSession } from '../../session/useSession';
 import { ENDPOINT } from '../../App';
-
+import txt from "../../assets/txt-file.png"
+import carpeta from "../../assets/folder.png"
 function Explorer() {
     const [searchTerm, setSearchTerm] = useState('/');
     const [files, setFiles] = useState([]);
@@ -11,6 +12,28 @@ function Explorer() {
     const { isAuthenticated } = useSession();
     const { driveletter } = useParams()
     const { partition } = useParams()
+
+
+    // Mapeo de extensiones a imágenes
+    const fileIcons = {
+        txt: txt
+    };
+    // Funcion para obtener la extension
+    function getFileExtension(filename) {
+        if (typeof filename !== 'string') return '';
+
+        const lastDotIndex = filename.lastIndexOf(".");
+        if (lastDotIndex === -1 || lastDotIndex === 0 || lastDotIndex === filename.length - 1) return '';
+
+        const extension = filename.substring(lastDotIndex + 1).toLowerCase();
+
+        // Comprueba si la extensión es 'txt'
+        if (extension.endsWith("txt")) {
+            return "txt"
+        }
+
+        return extension;
+    }
 
 
     useEffect(() => {
@@ -37,59 +60,66 @@ function Explorer() {
                 const response = await fetch(`${ENDPOINT}/docs`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
                         disk: driveletter,
                         partition: partition,
                         ruta: searchTerm
-
                     }),
                 });
-                const data = await response.text();
-                setFiles(JSON.parse(data));
+                const data = await response.json();
+                setFiles(data);
             } catch (error) {
                 console.log('Error fetching data:', error);
             }
         };
-
-        fetchData();
+        
+        fetchData()
     }, [driveletter, partition, searchTerm]);
+    
 
 
-    const handleSubmit = (event) => {
-        event.preventDefault();  // Prevenir el comportamiento por defecto del formulario
-        console.log('Buscar:', searchTerm);  // Aquí iría la lógica de búsqueda
-        // Podrías actualizar el estado con los resultados o hacer algo con el término de búsqueda
-    };
-
-    const handleKeyDown = (event) => {
-        if (event.key === 'Enter') {
-            handleSubmit(event);  // Llamar a handleSubmit si la tecla presionada es ENTER
+    function IncRuta(name) {
+        // Comprobar si el searchTerm actual termina con '/'
+        if (searchTerm.endsWith('/')) {
+            setSearchTerm(searchTerm + name);
+        } else {
+            setSearchTerm(searchTerm + '/' + name);
         }
-    };
+    }
+
+
 
     return (
         <div className="container-fluid bg-main py-4">
             <div className="container bg-files altoExplorer">
-                <form onSubmit={handleSubmit}>
-                    <br />
-                    <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Ingresa la ruta aqui"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        onKeyDown={handleKeyDown}  // Usar onKeyDown en lugar de onKeyPress
-                    />
-                </form>
+                <br />
+                <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Ingresa la ruta aqui"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
                 {
-                    files ?
-                        (
-                            <div className='container-fluid'>
-                                <h4 className='text-light'>{files}</h4>
-                            </div>
-                        ) : (<h4>No hay archivos</h4>)
+                    files
+                        ? (
+                            <ul className='d-flex flex-wrap container-fluid'>
+                                {files.filter(file => file).map((file, index) => {
+                                    const ext = getFileExtension(file).toLowerCase(); // Obtener la extensión del archivo
+                                    const icon = fileIcons[ext] || carpeta; // Obtener el ícono basado en la extensión o png por defecto
+                                    return (
+                                        <button onClick={() => IncRuta(file)} key={index} className='nav-link report p-4' to={'/'}>
+                                            <img src={icon} alt="archivo" className='img-fluid' />
+                                            <h6 className='text-light text-center'>{file}</h6>
+                                        </button>
+                                    );
+                                })}
+                            </ul>
+
+                        )
+                        : (<h3 className="text-light">No se encontraron archivos</h3>)
                 }
 
             </div>

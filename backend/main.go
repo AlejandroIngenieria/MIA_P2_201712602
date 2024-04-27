@@ -204,10 +204,11 @@ func main() {
 		}
 
 		var request DocsRequest
-		archivos, err := functions_test.FolderContent(request.Disk, request.Partition, request.Ruta)
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		if err := c.BodyParser(&request); err != nil {
+			return c.Status(fiber.StatusBadRequest).SendString("Error parsing request body")
 		}
+
+		archivos := functions_test.FolderContent(request.Disk, request.Partition, request.Ruta)
 		
 		return c.JSON(archivos)
 	})
