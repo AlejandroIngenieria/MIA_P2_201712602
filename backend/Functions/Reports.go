@@ -4,10 +4,9 @@ import (
 	"P2/Structs"
 	"P2/Utilities"
 	"bytes"
-	//"encoding/binary"
 	"fmt"
 	"os"
-	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -95,13 +94,13 @@ func GenerateReports(name *string, path *string, id *string, ruta *string) {
 func REPORT_MBR(id *string, path *string) {
 	letra := string((*id)[0])
 	letra = strings.ToUpper(letra)
-	filepath := "./Disks/" + letra + ".dsk"
+	archivo := "./Disks/" + letra + ".dsk"
 
 	/* -------------------------------------------------------------------------- */
 	/*                              BUSCAMOS EL DISCO                             */
 	/* -------------------------------------------------------------------------- */
 
-	file, err := os.Open(filepath)
+	file, err := os.Open(archivo)
 	if err != nil {
 		return
 	}
@@ -273,38 +272,17 @@ func REPORT_MBR(id *string, path *string) {
 	)
 
 	/* -------------------------------------------------------------------------- */
-	/*                          ESCRIBIMOS EL CODIGO DOT                          */
+	/*                           GUARDAMOS EL CODIGO DOT                          */
 	/* -------------------------------------------------------------------------- */
+	reporte := utilities_test.DotReport{}
+	reporte.Nombre = strings.Split(filepath.Base(*path), ".")[0]
+	reporte.Dot = dotCode
 
-	dotFilePath := "./Reports/mbr_rep.dot" // Ruta donde deseas guardar el archivo DOT
-	dotFile, err := os.Create(dotFilePath)
-	if err != nil {
-		AddText("Error: "+ err.Error())
-		return
-	}
-	defer dotFile.Close()
-
-	_, err = dotFile.WriteString(dotCode)
-	if err != nil {
-		AddText("Error: "+ err.Error())
-		return
-	}
-
-	/* -------------------------------------------------------------------------- */
-	/*                         GENERAMOS EL GRAFO COMO PNG                        */
-	/* -------------------------------------------------------------------------- */
-
-	pngFilePath := *path // Ruta donde deseas guardar el archivo PNG
-	cmd := exec.Command("dot", "-Tpng", "-o", pngFilePath, dotFilePath)
-	err = cmd.Run()
-	if err != nil {
-		AddText("Error: "+ err.Error())
-		return
-	}
+	utilities_test.AddReport(reporte)
 
 	AddText("--------------------------------------------------------------------------")
 	AddText("               REPORTE-MBR/EBR: GENERADO CORRECTAMENTE                    ")
-	AddText(fmt.Sprintf("                          %s                          ", pngFilePath))
+	AddText(fmt.Sprintf("                          %s                          ", *path))
 	AddText("--------------------------------------------------------------------------")
 }
 
@@ -320,8 +298,8 @@ func REPORT_DISK(id *string, path *string) {
 	/*                              BUSCAMOS EL DISCO                             */
 	/* -------------------------------------------------------------------------- */
 
-	filepath := "./Disks/" + letra + ".dsk"
-	file, err := os.Open(filepath)
+	archivo := "./Disks/" + letra + ".dsk"
+	file, err := os.Open(archivo)
 	if err != nil {
 		return
 	}
@@ -466,39 +444,15 @@ func REPORT_DISK(id *string, path *string) {
 		strP,
 	)
 
-	/* -------------------------------------------------------------------------- */
-	/*                          ESCRITURA DEL ARCHIVO DOT                         */
-	/* -------------------------------------------------------------------------- */
+	reporte := utilities_test.DotReport{}
+	reporte.Nombre = strings.Split(filepath.Base(*path), ".")[0]
+	reporte.Dot = dotCode
 
-	dotFilePath := "./Reports/disk_rep.dot" // Ruta donde deseas guardar el archivo DOT
-	dotFile, err := os.Create(dotFilePath)
-	if err != nil {
-		AddText("Error: "+ err.Error())
-		return
-	}
-	defer dotFile.Close()
-
-	_, err = dotFile.WriteString(dotCode)
-	if err != nil {
-		AddText("Error: "+ err.Error())
-		return
-	}
-
-	/* -------------------------------------------------------------------------- */
-	/*                        GENERAMOS EL GRAFICO COMO PNG                       */
-	/* -------------------------------------------------------------------------- */
-
-	pngFilePath := *path // Ruta donde deseas guardar el archivo PNG
-	cmd := exec.Command("dot", "-Tpng", "-o", pngFilePath, dotFilePath)
-	err = cmd.Run()
-	if err != nil {
-		AddText("Error: "+ err.Error())
-		return
-	}
+	utilities_test.AddReport(reporte)
 
 	AddText("--------------------------------------------------------------------------")
 	AddText("                 REPORTE-DISK: GENERADO CORRECTAMENTE                     ")
-	AddText(fmt.Sprintf("                          %s                          ", pngFilePath))
+	AddText(fmt.Sprintf("                          %s                          ", *path))
 	AddText("--------------------------------------------------------------------------")
 }
 
@@ -510,13 +464,13 @@ func REPORT_INODE(id *string, path *string) {
 	inodos = ""
 	letra := string((*id)[0])
 	letra = strings.ToUpper(letra)
-	filepath := "./Disks/" + letra + ".dsk"
+	archivo := "./Disks/" + letra + ".dsk"
 
 	/* -------------------------------------------------------------------------- */
 	/*                              BUSCAMOS EL DISCO                             */
 	/* -------------------------------------------------------------------------- */
 
-	file, err := os.Open(filepath)
+	file, err := os.Open(archivo)
 	if err != nil {
 		return
 	}
@@ -526,7 +480,7 @@ func REPORT_INODE(id *string, path *string) {
 	/* -------------------------------------------------------------------------- */
 	var TempMBR structs_test.MBR
 	if err := utilities_test.ReadObject(file, &TempMBR, 0); err != nil {
-		AddText("Error: "+ err.Error())
+		AddText("Error: " + err.Error())
 		return
 	}
 
@@ -550,7 +504,7 @@ func REPORT_INODE(id *string, path *string) {
 	/* -------------------------------------------------------------------------- */
 	var tempSuperblock structs_test.Superblock
 	if err := utilities_test.ReadObject(file, &tempSuperblock, int64(TempMBR.Mbr_particion[index].Part_start)); err != nil {
-		AddText("Error: "+ err.Error())
+		AddText("Error: " + err.Error())
 		return
 	}
 
@@ -574,39 +528,15 @@ func REPORT_INODE(id *string, path *string) {
 		inodos,
 	)
 
-	/* -------------------------------------------------------------------------- */
-	/*                          ESCRIBIMOS EL CODIGO DOT                          */
-	/* -------------------------------------------------------------------------- */
+	reporte := utilities_test.DotReport{}
+	reporte.Nombre = strings.Split(filepath.Base(*path), ".")[0]
+	reporte.Dot = dotCode
 
-	dotFilePath := "./Reports/inodes_rep.dot" // Ruta donde deseas guardar el archivo DOT
-	dotFile, err := os.Create(dotFilePath)
-	if err != nil {
-		AddText("Error: "+ err.Error())
-		return
-	}
-	defer dotFile.Close()
-
-	_, err = dotFile.WriteString(dotCode)
-	if err != nil {
-		AddText("Error: "+ err.Error())
-		return
-	}
-
-	/* -------------------------------------------------------------------------- */
-	/*                         GENERAMOS EL GRAFO COMO PNG                        */
-	/* -------------------------------------------------------------------------- */
-
-	pngFilePath := *path // Ruta donde deseas guardar el archivo PNG
-	cmd := exec.Command("dot", "-Tsvg", "-o", pngFilePath, dotFilePath)
-	err = cmd.Run()
-	if err != nil {
-		AddText("Error: "+ err.Error())
-		return
-	}
+	utilities_test.AddReport(reporte)
 
 	AddText("--------------------------------------------------------------------------")
 	AddText("               REPORTE-INODOS: GENERADO CORRECTAMENTE                    ")
-	AddText(fmt.Sprintf("                          %s                          ", pngFilePath))
+	AddText(fmt.Sprintf("                          %s                          ", *path))
 	AddText("--------------------------------------------------------------------------")
 }
 
@@ -625,13 +555,13 @@ func REPORT_BLOCK(id *string, path *string) {
 	bloques = ""
 	letra := string((*id)[0])
 	letra = strings.ToUpper(letra)
-	filepath := "./Disks/" + letra + ".dsk"
+	archivo := "./Disks/" + letra + ".dsk"
 
 	/* -------------------------------------------------------------------------- */
 	/*                              BUSCAMOS EL DISCO                             */
 	/* -------------------------------------------------------------------------- */
 
-	file, err := os.Open(filepath)
+	file, err := os.Open(archivo)
 	if err != nil {
 		return
 	}
@@ -641,7 +571,7 @@ func REPORT_BLOCK(id *string, path *string) {
 	/* -------------------------------------------------------------------------- */
 	var TempMBR structs_test.MBR
 	if err := utilities_test.ReadObject(file, &TempMBR, 0); err != nil {
-		AddText("Error: "+ err.Error())
+		AddText("Error: " + err.Error())
 		return
 	}
 
@@ -665,7 +595,7 @@ func REPORT_BLOCK(id *string, path *string) {
 	/* -------------------------------------------------------------------------- */
 	var tempSuperblock structs_test.Superblock
 	if err := utilities_test.ReadObject(file, &tempSuperblock, int64(TempMBR.Mbr_particion[index].Part_start)); err != nil {
-		AddText("Error: "+ err.Error())
+		AddText("Error: " + err.Error())
 		return
 	}
 
@@ -688,39 +618,15 @@ func REPORT_BLOCK(id *string, path *string) {
 		bloques,
 	)
 
-	/* -------------------------------------------------------------------------- */
-	/*                          ESCRIBIMOS EL CODIGO DOT                          */
-	/* -------------------------------------------------------------------------- */
+	reporte := utilities_test.DotReport{}
+	reporte.Nombre = strings.Split(filepath.Base(*path), ".")[0]
+	reporte.Dot = dotCode
 
-	dotFilePath := "./Reports/bloques_rep.dot" // Ruta donde deseas guardar el archivo DOT
-	dotFile, err := os.Create(dotFilePath)
-	if err != nil {
-		AddText("Error: "+ err.Error())
-		return
-	}
-	defer dotFile.Close()
-
-	_, err = dotFile.WriteString(dotCode)
-	if err != nil {
-		AddText("Error: "+ err.Error())
-		return
-	}
-
-	/* -------------------------------------------------------------------------- */
-	/*                         GENERAMOS EL GRAFO COMO PNG                        */
-	/* -------------------------------------------------------------------------- */
-
-	pngFilePath := *path // Ruta donde deseas guardar el archivo PNG
-	cmd := exec.Command("dot", "-Tsvg", "-o", pngFilePath, dotFilePath)
-	err = cmd.Run()
-	if err != nil {
-		AddText("Error: "+ err.Error())
-		return
-	}
+	utilities_test.AddReport(reporte)
 
 	AddText("--------------------------------------------------------------------------")
 	AddText("               REPORTE-BLOQUES: GENERADO CORRECTAMENTE                    ")
-	AddText(fmt.Sprintf("                          %s                          ", pngFilePath))
+	AddText(fmt.Sprintf("                          %s                          ", *path))
 	AddText("--------------------------------------------------------------------------")
 }
 
@@ -747,7 +653,7 @@ func REPORT_BM_INODE(id *string, path *string) {
 	/* -------------------------------------------------------------------------- */
 	var TempMBR structs_test.MBR
 	if err := utilities_test.ReadObject(file, &TempMBR, 0); err != nil {
-		AddText("Error: "+ err.Error())
+		AddText("Error: " + err.Error())
 		return
 	}
 
@@ -771,7 +677,7 @@ func REPORT_BM_INODE(id *string, path *string) {
 	/* -------------------------------------------------------------------------- */
 	var tempSuperblock structs_test.Superblock
 	if err := utilities_test.ReadObject(file, &tempSuperblock, int64(TempMBR.Mbr_particion[index].Part_start)); err != nil {
-		AddText("Error: "+ err.Error())
+		AddText("Error: " + err.Error())
 		return
 	}
 
@@ -800,14 +706,14 @@ func REPORT_BM_INODE(id *string, path *string) {
 
 	file1, err := os.Create(*path)
 	if err != nil {
-		AddText("Error: "+ err.Error())
+		AddText("Error: " + err.Error())
 		return
 	}
 	defer file1.Close()
 	//println(bitmap)
 	_, err = file1.WriteString(bitmap)
 	if err != nil {
-		AddText("Error: "+ err.Error())
+		AddText("Error: " + err.Error())
 		return
 	}
 
@@ -839,7 +745,7 @@ func REPORT_BM_BLOCK(id *string, path *string) {
 	/* -------------------------------------------------------------------------- */
 	var TempMBR structs_test.MBR
 	if err := utilities_test.ReadObject(file, &TempMBR, 0); err != nil {
-		AddText("Error: "+ err.Error())
+		AddText("Error: " + err.Error())
 		return
 	}
 
@@ -863,7 +769,7 @@ func REPORT_BM_BLOCK(id *string, path *string) {
 	/* -------------------------------------------------------------------------- */
 	var tempSuperblock structs_test.Superblock
 	if err := utilities_test.ReadObject(file, &tempSuperblock, int64(TempMBR.Mbr_particion[index].Part_start)); err != nil {
-		AddText("Error: "+ err.Error())
+		AddText("Error: " + err.Error())
 		return
 	}
 
@@ -892,14 +798,14 @@ func REPORT_BM_BLOCK(id *string, path *string) {
 
 	file1, err := os.Create(*path)
 	if err != nil {
-		AddText("Error: "+ err.Error())
+		AddText("Error: " + err.Error())
 		return
 	}
 	defer file1.Close()
 	//println(bitmap)
 	_, err = file1.WriteString(bitmap)
 	if err != nil {
-		AddText("Error: "+ err.Error())
+		AddText("Error: " + err.Error())
 		return
 	}
 
@@ -915,10 +821,10 @@ func REPORT_TREE(id *string, path *string) {
 	/* -------------------------------------------------------------------------- */
 	/*                              BUSCAMOS EL DISCO                             */
 	/* -------------------------------------------------------------------------- */
-	filepath := "./Disks/" + letra + ".dsk"
-	file, err := utilities_test.OpenFile(filepath)
+	archivo := "./Disks/" + letra + ".dsk"
+	file, err := utilities_test.OpenFile(archivo)
 	if err != nil {
-		AddText("Error: "+ err.Error())
+		AddText("Error: " + err.Error())
 		return
 	}
 	defer file.Close()
@@ -928,7 +834,7 @@ func REPORT_TREE(id *string, path *string) {
 	/* -------------------------------------------------------------------------- */
 	var TempMBR structs_test.MBR
 	if err := utilities_test.ReadObject(file, &TempMBR, 0); err != nil {
-		AddText("Error: "+ err.Error())
+		AddText("Error: " + err.Error())
 		return
 	}
 
@@ -952,7 +858,7 @@ func REPORT_TREE(id *string, path *string) {
 	/* -------------------------------------------------------------------------- */
 	var tempSuperblock structs_test.Superblock
 	if err := utilities_test.ReadObject(file, &tempSuperblock, int64(TempMBR.Mbr_particion[index].Part_start)); err != nil {
-		AddText("Error: "+ err.Error())
+		AddText("Error: " + err.Error())
 		return
 	}
 
@@ -977,40 +883,15 @@ func REPORT_TREE(id *string, path *string) {
 		tree,
 	)
 
-	/* -------------------------------------------------------------------------- */
-	/*                          ESCRIBIMOS EL CODIGO DOT                          */
-	/* -------------------------------------------------------------------------- */
+	reporte := utilities_test.DotReport{}
+	reporte.Nombre = strings.Split(filepath.Base(*path), ".")[0]
+	reporte.Dot = dotCode
 
-	dotFilePath := "./Reports/tree_rep.dot" // Ruta donde deseas guardar el archivo DOT
-	dotFile, err := os.Create(dotFilePath)
-	if err != nil {
-		AddText("Error: "+ err.Error())
-		return
-	}
-	defer dotFile.Close()
-
-	_, err = dotFile.WriteString(dotCode)
-	if err != nil {
-		AddText("Error: "+ err.Error())
-		return
-	}
-
-	/* -------------------------------------------------------------------------- */
-	/*                         GENERAMOS EL GRAFO COMO PNG                        */
-	/* -------------------------------------------------------------------------- */
-
-	pngFilePath := *path // Ruta donde deseas guardar el archivo PNG
-	cmd := exec.Command("dot", "-Tsvg", "-o", pngFilePath, dotFilePath)
-	err = cmd.Run()
-	if err != nil {
-		AddText("Error: "+ err.Error())
-		return
-	}
-
-
+	utilities_test.AddReport(reporte)
+	
 	AddText("--------------------------------------------------------------------------")
 	AddText("               REPORTE-TREE: GENERADO CORRECTAMENTE                    ")
-	AddText(fmt.Sprintf("                          %s                          ", pngFilePath))
+	AddText(fmt.Sprintf("                          %s                          ", *path))
 	AddText("--------------------------------------------------------------------------")
 
 }
@@ -1026,8 +907,8 @@ func REPORT_SB(id *string, path *string) {
 	/* -------------------------------------------------------------------------- */
 	/*                              BUSCAMOS EL DISCO                             */
 	/* -------------------------------------------------------------------------- */
-	filepath := "./Disks/" + letra + ".dsk"
-	file, err := os.Open(filepath)
+	archivo := "./Disks/" + letra + ".dsk"
+	file, err := os.Open(archivo)
 	if err != nil {
 		return
 	}
@@ -1037,7 +918,7 @@ func REPORT_SB(id *string, path *string) {
 	/* -------------------------------------------------------------------------- */
 	var TempMBR structs_test.MBR
 	if err := utilities_test.ReadObject(file, &TempMBR, 0); err != nil {
-		AddText("Error: "+ err.Error())
+		AddText("Error: " + err.Error())
 		return
 	}
 
@@ -1061,7 +942,7 @@ func REPORT_SB(id *string, path *string) {
 	/* -------------------------------------------------------------------------- */
 	var tempSuperblock structs_test.Superblock
 	if err := utilities_test.ReadObject(file, &tempSuperblock, int64(TempMBR.Mbr_particion[index].Part_start)); err != nil {
-		AddText("Error: "+ err.Error())
+		AddText("Error: " + err.Error())
 		return
 	}
 
@@ -1124,35 +1005,17 @@ func REPORT_SB(id *string, path *string) {
 		int(tempSuperblock.S_block_start),
 	)
 
-	// Escribir el contenido en el archivo DOT
-	dotFilePath := "./Reports/sb_rep.dot" // Ruta donde deseas guardar el archivo DOT
-	dotFile, err := os.Create(dotFilePath)
-	if err != nil {
-		AddText("Error: "+ err.Error())
-		return
-	}
-	defer dotFile.Close()
+	reporte := utilities_test.DotReport{}
+	reporte.Nombre = strings.Split(filepath.Base(*path), ".")[0]
+	reporte.Dot = dotCode
 
-	_, err = dotFile.WriteString(dotCode)
-	if err != nil {
-		AddText("Error: "+ err.Error())
-		return
-	}
-
-	// Llamar a Graphviz para generar el gráfico
-	pngFilePath := *path // Ruta donde deseas guardar el archivo PNG
-	cmd := exec.Command("dot", "-Tpng", "-o", pngFilePath, dotFilePath)
-	err = cmd.Run()
-	if err != nil {
-		AddText("Error: "+ err.Error())
-		return
-	}
+	utilities_test.AddReport(reporte)
 
 	AddText("--------------------------------------------------------------------------")
 	AddText("              REPORTE-SUPERBLOCK: GENERADO CORRECTAMENTE                  ")
-	AddText(fmt.Sprintf("                          %s                          ", pngFilePath))
+	AddText(fmt.Sprintf("                          %s                          ", *path))
 	AddText("--------------------------------------------------------------------------")
-	
+
 }
 
 /* -------------------------------------------------------------------------- */

@@ -5,11 +5,21 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"unicode"
 	"strings"
+	"unicode"
 )
 
 var Resultados strings.Builder
+var GraphReports []DotReport
+
+type DotReport struct {
+	Nombre string `json:"nombre"`
+	Dot    string `json:"dot"`
+}
+
+func AddReport(reporte DotReport)  {
+	GraphReports = append(GraphReports, reporte)
+}
 
 /* -------------------------------------------------------------------------- */
 /*                                 AUXILIARES                                 */
@@ -18,7 +28,7 @@ func CreateFile(name string) error {
 	//Ensure the directory exists
 	dir := filepath.Dir(name)
 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-		Resultados.WriteString("Err CreateFile dir=="+ err.Error())
+		Resultados.WriteString("Err CreateFile dir==" + err.Error())
 		return err
 	}
 
@@ -26,7 +36,7 @@ func CreateFile(name string) error {
 	if _, err := os.Stat(name); os.IsNotExist(err) {
 		file, err := os.Create(name)
 		if err != nil {
-			Resultados.WriteString("Err CreateFile create=="+ err.Error())
+			Resultados.WriteString("Err CreateFile create==" + err.Error())
 			return err
 		}
 		defer file.Close()
@@ -38,7 +48,7 @@ func CreateFile(name string) error {
 func OpenFile(name string) (*os.File, error) {
 	file, err := os.OpenFile(name, os.O_RDWR, 0644)
 	if err != nil {
-		Resultados.WriteString("Err OpenFile=="+ err.Error())
+		Resultados.WriteString("Err OpenFile==" + err.Error())
 		return nil, err
 	}
 	return file, nil
@@ -49,7 +59,7 @@ func WriteObject(file *os.File, data interface{}, position int64) error {
 	file.Seek(position, 0)
 	err := binary.Write(file, binary.LittleEndian, data)
 	if err != nil {
-		Resultados.WriteString("Err WriteObject=="+ err.Error())
+		Resultados.WriteString("Err WriteObject==" + err.Error())
 		return err
 	}
 	return nil
@@ -60,7 +70,7 @@ func ReadObject(file *os.File, data interface{}, position int64) error {
 	file.Seek(position, 0)
 	err := binary.Read(file, binary.LittleEndian, data)
 	if err != nil {
-		Resultados.WriteString("Err ReadObject=="+ err.Error())
+		Resultados.WriteString("Err ReadObject==" + err.Error())
 		return err
 	}
 	return nil
@@ -99,7 +109,7 @@ func ConvertToZeros(filename string, start int64, end int64) error {
 }
 
 func CalcularPorcentaje(tamanoParticion int64, tamanoDisco int64) int64 {
-	return (int64(tamanoParticion)*100 / int64(tamanoDisco))
+	return (int64(tamanoParticion) * 100 / int64(tamanoDisco))
 }
 
 func LimpiarCerosBinarios(bytes []byte) []byte {
@@ -118,11 +128,10 @@ func LimpiarCerosBinarios(bytes []byte) []byte {
 }
 
 func EsNumero(caracter string) bool {
-    runeValue := []rune(caracter)
-    if len(runeValue) != 1 {
-        // No es un solo caracter
-        return false
-    }
-    return unicode.IsDigit(runeValue[0])
+	runeValue := []rune(caracter)
+	if len(runeValue) != 1 {
+		// No es un solo caracter
+		return false
+	}
+	return unicode.IsDigit(runeValue[0])
 }
-

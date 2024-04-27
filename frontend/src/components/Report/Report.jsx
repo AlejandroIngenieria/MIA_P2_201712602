@@ -1,21 +1,22 @@
 import { useEffect, useState } from 'react';
+import { Graphviz } from 'graphviz-react';
 import { ENDPOINT } from '../../App';
-import pdf from "../../assets/pdf-file.png"
-import png from "../../assets/png-file.png"
-import svg from "../../assets/svg-file.png"
-import txt from "../../assets/txt-file.png"
+// import pdf from "../../assets/pdf-file.png"
+// import png from "../../assets/png-file.png"
+// import svg from "../../assets/svg-file.png"
+// import txt from "../../assets/txt-file.png"
 
 // Mapeo de extensiones a imágenes
-const fileIcons = {
-    pdf: pdf,
-    png: png,
-    svg: svg,
-    txt: txt
-};
+// const fileIcons = {
+//     pdf: pdf,
+//     png: png,
+//     svg: svg,
+//     txt: txt
+// };
 // Funcion para obtener la extension
-function getFileExtension(filename) {
-    return filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2);
-}
+// function getFileExtension(filename) {
+//     return filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2);
+// }
 
 function Report() {
 
@@ -36,45 +37,25 @@ function Report() {
             });
     }, []);
 
-    // Funcion para abrir el archivo en el navegador
-    async function openFile(fileName) {
-        try {
-            // Llamada para recibir el reporte
-            const response = await fetch(`${ENDPOINT}/reports/show`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ filename: fileName })
-            });
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
 
-            const blob = await response.blob();
-            const fileUrl = window.URL.createObjectURL(blob);
-            window.open(fileUrl, '_blank'); // Abrir el archivo en una nueva pestaña
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    }
 
     return (
         <div className="container-fluid bg-main py-4">
-            <div className="container bg-report altoReport">
+            <div className="container bg-report altoReport py-4">
                 <h1 className="display-1 text-light text-center">Reportes</h1>
                 {
                     files
                         ? (
-                            <ul className='d-flex flex-wrap container-fluid'>
+                            <ul className='d-flex flex-wrap container-fluid flex-column'>
                                 {files.map((file, index) => {
-                                    const ext = getFileExtension(file).toLowerCase(); // Obtener la extensión del archivo
-                                    const icon = fileIcons[ext] || png; // Obtener el ícono basado en la extensión o png por defecto
                                     return (
-                                        <button onClick={() => openFile(file)} key={index} className='nav-link report p-4' to={'/'}>
-                                            <img src={icon} alt="reporte" className='img-fluid' />
-                                            <h6 className='text-light text-center'>{file}</h6>
-                                        </button>
+                                        <li key={index}>
+                                            <hr className='border-warning border border-2'/>
+                                            <div className='container-fluid'>
+                                                <h3 className='text-light text-center display-3'>{file.nombre}</h3>
+                                                <Graphviz dot={file.dot} options={{ width:'100%', fit: true, zoom: true }} />
+                                            </div>
+                                        </li>
                                     );
                                 })}
                             </ul>

@@ -123,21 +123,9 @@ func main() {
 	/*                              ENVIO DE REPORTES                             */
 	/* -------------------------------------------------------------------------- */
 	app.Get("/reports", func(c *fiber.Ctx) error {
-		carpeta := "./Reports" // Asegúrate de cambiar esto por la ruta correcta
-		archivos, err := FolderInfo(carpeta)
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-		}
+		archivos := utilities_test.GraphReports
 
-		// Filtrar archivos, quitando los que terminan en '.dot'
-		filtrados := []string{}
-		for _, archivo := range archivos {
-			if !strings.HasSuffix(archivo, ".dot") {
-				filtrados = append(filtrados, archivo)
-			}
-		}
-
-		return c.JSON(filtrados) // Envía la lista filtrada de archivos como JSON
+		return c.JSON(archivos) // Envía la lista filtrada de archivos como JSON
 	})
 
 	/* -------------------------------------------------------------------------- */

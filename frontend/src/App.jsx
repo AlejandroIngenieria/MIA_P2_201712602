@@ -11,7 +11,7 @@ import { Routes, Route, HashRouter } from "react-router-dom"
 import { SessionProvider } from "./session/Session"
 
 export const ENDPOINT = "http://localhost:4000";
-
+//13.59.216.212
 sessionStorage.setItem('session', false);
 
 
